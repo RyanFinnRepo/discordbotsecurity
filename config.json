@@ -1,0 +1,9 @@
+{
+  "clientId": "",
+  "guildId": "",
+  "threadId": "",
+  "threadIdTest": "",
+  "version": "v1.0.0 Written by Ryan Finn",
+  "help": "\nfor file input -f filename\n\\nto use encryption -e\n",
+  "token": ""
+}
