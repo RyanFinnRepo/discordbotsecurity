@@ -2,15 +2,15 @@ const crypto = require('crypto');
 const prompt = require('prompt');
 const write = require('fs');
 const {Client, Intents} = require('discord.js');
-const {token, clientId, threadId, threadIdTest, version} = require('./config.json');
+const {token, clientId, threadId, threadIdTest, threadIdR, version} = require('./config.json');
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILD_MESSAGES,
    Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILDS);
 const client = new Client({ intents: myIntents });
 const channel = client.channels.cache.get(thread);
 const algorithm = 'aes-256-cbc';
-var {keyvar} = require('./key.json')
 var iv = crypto.randomBytes(16);
+var {keyvar} = require('./key.json')
 
 var thread;
 var output;
@@ -47,24 +47,16 @@ function rekey(text){
   var hash = hasher.update(key);
   var output = hash.digest('hex');
   var output1 = { keyvar: output }
-
+  console.log(output);
   write.writeFile('key.json', JSON.stringify(output1), function(err) {
     if (err) return console.err(err);
   });
   let keyvar = (JSON.stringify(output1.keyvar).slice(1,65));
+
 }
 
-if (process.argv[2] === '-e'){
-  thread = threadId;
-  secure = true;
-  console.log('secure mode');
-  console.log(secure);
-}
-if (process.argv[2] === '-g'){
-  thread = threadId;
-  console.log('general');
-}
-else if (process.argv[2] === '-v') {
+
+if (process.argv[2] === '-v') {
   console.log(version);
   process.exit();
 }
@@ -90,9 +82,31 @@ client.once('ready', message =>{
         }
         else if (result.msg === '-general'){
           thread = threadId;
+          console.log(thread);
         }
         else if (result.msg === '-test'){
           thread = threadIdTest;
+          console.log(thread);
+        }
+        else if (result.msg === '-root'){
+          thread = threadIdR;
+          console.log(thread);
+        }
+        else if (result.msg === '-secure'){
+          secure = true;
+          console.log('secure: ' + secure);
+        }
+        else if (result.msg === '-clear'){
+          secure = false
+          console.log('secure: ' + secure);
+        }
+        else if (((result.msg).slice(0,4)) === '-key'){
+          try{
+            console.log(JOSN.stringify(keyvar));
+            console.log(rekey((result.msg).slice(4)))
+            console.log(keyvar);
+          }
+          catch{}
         }
         else if (secure == true) {
           channel.send((encrypt(result.msg).iv) + (encrypt(result.msg).encryptedData));
