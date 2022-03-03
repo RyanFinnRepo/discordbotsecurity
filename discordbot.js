@@ -130,7 +130,7 @@ client.once('ready', message =>{
 });
 
 function modinit(){
-  fs.readFile('testmap.txt', "utf8", (err, data) => {
+  fs.readFile('wordlist.txt', "utf8", (err, data) => {
     if (err){
       console.error(err);
       return
