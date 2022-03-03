@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const prompt = require('prompt');
-const write = require('fs');
+const fs = require('fs');
+const hashmap = require('hashmap');
 const {Client, Intents} = require('discord.js');
 const {token, clientId, threadId, threadIdTest, threadIdR, version} = require('./config.json');
 const myIntents = new Intents();
@@ -12,9 +13,11 @@ const algorithm = 'aes-256-cbc';
 var iv = crypto.randomBytes(16);
 var {keyvar} = require('./key.json')
 
+var word;
 var thread;
 var output;
 var secure = false;
+var map = new hashmap();
 
 function encrypt(text) {
   let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(keyvar, 'hex'), iv);
@@ -126,6 +129,30 @@ client.once('ready', message =>{
 
 });
 
+function modinit(){
+  fs.readFile('testmap.txt', "utf8", (err, data) => {
+    if (err){
+      console.error(err);
+      return
+    }
+    word = data.toString().split('\n')
+    for (var i = 0; i < word.length - 1; i++){
+      map.set(word[i], 'bannedWord');
+    }
+  });
+}
+
+modinit()
+
+function mod(text) {
+  for (var i = 0; i < text.length; i++){
+    if (map.get(text[i]) === 'bannedWord') {
+    return map.get(text[i]);
+    }
+  }
+}
+
+
 client.on('messageCreate', messageCreate => {
   try{
     output = (decrypt({ iv: messageCreate.content.slice(0, 32),
@@ -154,12 +181,12 @@ client.on('messageCreate', messageCreate => {
 
 });
 client.on("messageCreate", (message) =>{
-  
+
   var options = ["That word isnt allowed", "You said a banned word", "Don't say that", "Hush"];
-  if (message.content.toLowerCase().includes("anime")){
+  if (mod(message.content.split(' ')) === 'bannedWord'){
     message.delete();
     var response = options[Math.floor(Math.random()*options.length)];
-    message.channel.send(response).then().catch(console.error).then(message => {setTimeout(() => message.delete(), 3000)});  
+    message.channel.send(response).then().catch(console.error).then(message => {setTimeout(() => message.delete(), 3000)});
   }
 });
 client.login(token);
